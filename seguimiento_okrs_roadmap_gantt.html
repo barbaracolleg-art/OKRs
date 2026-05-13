@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tablero OKRs — Q2 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;background:#F0F4F8;color:#0F172A;font-size:13px;min-height:100vh}
+.hdr{background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);color:#fff;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.hdr-eye{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#64748B;margin-bottom:4px}
+.hdr-title{font-size:20px;font-weight:700;color:#F8FAFC}
+.hdr-sub{font-size:11.5px;color:#94A3B8;margin-top:3px}
+.hdr-right{text-align:right;font-size:11px;color:#94A3B8}
+.hdr-right strong{display:block;font-size:14px;font-weight:600;color:#CBD5E1;margin-bottom:2px}
+.main{padding:20px 24px;max-width:1600px;margin:0 auto}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-bottom:20px}
+.kpi-card{background:#fff;border-radius:10px;border:1px solid #E2E8F0;padding:16px 16px 14px;box-shadow:0 1px 3px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.kpi-stripe{position:absolute;top:0;left:0;width:3px;height:100%}
+.kpi-badge{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:99px;display:inline-block;margin-bottom:8px}
+.badge-c{background:#DBEAFE;color:#1E40AF}.badge-v{background:#FEE2E2;color:#991B1B}.badge-p{background:#D1FAE5;color:#065F46}
+.kpi-name{font-size:11px;color:#64748B;line-height:1.4;margin-bottom:10px;min-height:28px}
+.kpi-nums{display:flex;align-items:baseline;gap:5px;margin-bottom:9px}
+.kpi-actual{font-size:28px;font-weight:700;line-height:1;color:#0F172A}
+.kpi-target{font-size:12px;color:#94A3B8}
+.kpi-bar-bg{height:4px;background:#E2E8F0;border-radius:99px;overflow:hidden;margin-bottom:6px}
+.kpi-bar-fill{height:100%;border-radius:99px;transition:width .5s ease}
+.kpi-foot{font-size:10.5px;font-weight:600}
+.c-ok{color:#059669}.c-warn{color:#D97706}.c-bad{color:#DC2626}.c-none{color:#9CA3AF}
+.tab-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.tab-group{display:flex;gap:2px;background:#E2E8F0;padding:3px;border-radius:8px}
+.tab-btn{border:none;background:transparent;padding:6px 18px;font-size:12px;font-weight:500;border-radius:6px;cursor:pointer;color:#64748B;font-family:inherit;transition:all .15s}
+.tab-btn.active{background:#fff;color:#0F172A;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.flt-banner{display:none;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:12px;color:#1E40AF;align-items:center;justify-content:space-between}
+.flt-banner button{border:none;background:transparent;color:#1E40AF;cursor:pointer;font-weight:700;font-family:inherit;font-size:12px}
+.seg-topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.legend{display:flex;align-items:center;gap:12px;font-size:11px;color:#6B7280;flex-wrap:wrap}
+.ldot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:3px}
+.mes-group{display:flex;gap:5px;flex-wrap:wrap}
+.mes-btn{border:1px solid #E2E8F0;background:#fff;padding:4px 14px;font-size:11px;font-weight:500;border-radius:99px;cursor:pointer;color:#64748B;font-family:inherit;transition:all .15s}
+.mes-btn.active{background:#0F172A;border-color:#0F172A;color:#fff}
+.seg-wrap{overflow-x:auto;background:#fff;border-radius:10px;border:1px solid #E2E8F0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.seg-table{width:100%;border-collapse:collapse;font-size:12px}
+.seg-table th{background:#F8FAFC;padding:9px 10px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6B7280;border-bottom:1px solid #E2E8F0;white-space:nowrap}
+.seg-table th:first-child{text-align:left;padding-left:16px}
+.sem-cell{padding:2px;border-left:1px solid #F1F5F9;border-bottom:1px solid #F1F5F9;min-width:62px}
+.sem-input{width:100%;border:none;background:transparent;text-align:center;font-size:12px;font-family:inherit;padding:8px 3px;color:#374151;outline:none;border-radius:4px;font-weight:500}
+.sem-input:focus{background:#EFF6FF;color:#1E40AF;box-shadow:0 0 0 1.5px #93C5FD inset}
+.status-ok{background:#D1FAE5!important}.status-warn{background:#FEF3C7!important}.status-bad{background:#FEE2E2!important}
+.toolbar{display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btn{border:1px solid #E2E8F0;background:#fff;padding:6px 14px;font-size:12px;font-weight:500;border-radius:7px;cursor:pointer;color:#374151;font-family:inherit;transition:background .1s}
+.btn:hover{background:#F8FAFC}
+.btn-del{color:#DC2626;border-color:#FECACA}.btn-del:hover{background:#FEF2F2}
+.save-status{margin-left:auto;font-size:11px;font-weight:600;color:#059669}
+.hint{font-size:11px;color:#9CA3AF;margin-top:10px}
+.gantt-legend{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:11px;color:#6B7280;padding:10px 14px;background:#fff;border-radius:8px;border:1px solid #E2E8F0;margin-bottom:12px}
+.gchip{display:inline-flex;align-items:center;gap:5px}
+.gchip-dot{display:inline-block;width:14px;height:7px;border-radius:2px}
+.gantt-wrap{overflow-x:auto;background:#fff;border-radius:10px;border:1px solid #E2E8F0;box-shadow:0 1px 3px rgba(0,0,0,.06);position:relative}
+.gantt-row:hover{background:#F8FAFC!important}
+.gantt-bar{transition:opacity .15s}.gantt-bar:hover{opacity:.82}
+.squad-tab{display:inline-flex;align-items:center;gap:7px;padding:11px 16px 10px;border-bottom:2px solid transparent;font-size:12px;font-weight:600;color:#94A3B8;cursor:pointer;user-select:none;transition:all .15s;}
+.squad-tab:hover{color:#475569}
+.squad-tab.squad-active{border-bottom-color:#1D4ED8;color:#1D4ED8;}
+.squad-dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<div style="background:#fff;border-bottom:1px solid #E2E8F0;padding:0 24px;display:flex;align-items:center;gap:0;">
+  <div class="squad-tab squad-active" data-squad="leads" onclick="showSquad('leads')">
+    <span class="squad-dot" style="background:#22C55E;box-shadow:0 0 0 2px #DCFCE7;"></span>
+    Gestión de Leads
+    <span style="font-size:10px;opacity:.6;">▾</span>
+  </div>
+  <div class="squad-tab" data-squad="pub" onclick="showSquad('pub')">
+    <span class="squad-dot" style="background:#F59E0B;box-shadow:0 0 0 2px #FEF3C7;"></span>
+    Publicaciones
+    <span style="font-size:10px;opacity:.6;">▾</span>
+  </div>
+</div>
+
+<div class="hdr">
+  <div>
+    <div class="hdr-eye" id="hdr-eye">Americar · Gestión de Leads · Q2 2026</div>
+    <div class="hdr-title">Tablero de OKRs</div>
+    <div class="hdr-sub">Líder: <span id="hdr-lider">Mayorin Vivas</span> &nbsp;·&nbsp; Última sesión: <span id="hdr-ultima"></span></div>
+  </div>
+  <div class="hdr-right">
+    <strong id="hdr-sem">—</strong>
+    <span id="hdr-fecha"></span>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <div class="tab-bar">
+    <div class="tab-group">
+      <button class="tab-btn active" id="tab-seg" onclick="showTab('seg')">Seguimiento OKRs</button>
+      <button class="tab-btn" id="tab-road" onclick="showTab('road')">Roadmap (Gantt)</button>
+    </div>
+  </div>
+
+  <div id="filter-banner" class="flt-banner">
+    <span id="filter-text"></span>
+    <button onclick="clearFilter()">Limpiar ✕</button>
+  </div>
+
+  <div id="view-seg">
+    <div class="seg-topbar">
+      <div class="legend">
+        <strong style="color:#374151;font-weight:600;">Semáforo:</strong>
+        <span><span class="ldot" style="background:#059669;"></span>≥ 90% meta</span>
+        <span><span class="ldot" style="background:#D97706;"></span>70–90%</span>
+        <span><span class="ldot" style="background:#DC2626;"></span>&lt; 70%</span>
+      </div>
+      <div class="mes-group" id="mes-group-seg"></div>
+    </div>
+    <div class="seg-wrap" id="seg-table-wrap"></div>
+    <div class="toolbar">
+      <button class="btn" onclick="exportData()">↓ Exportar CSV</button>
+      <button class="btn btn-del" onclick="resetData()">↺ Limpiar datos</button>
+      <span class="save-status" id="save-status"></span>
+    </div>
+    <p class="hint">Escribe el valor en cada celda de semana. Clic en el nombre de la palanca para ver sus iniciativas en el Gantt.</p>
+  </div>
+
+  <div id="view-road" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+      <div class="mes-group" id="mes-group-gantt"></div>
+      <span id="gantt-count" style="font-size:11px;color:#9CA3AF;"></span>
+    </div>
+    <div class="gantt-legend" id="gantt-legend"></div>
+    <div class="gantt-wrap" id="gantt-container"></div>
+    <p class="hint" style="margin-top:10px;">Clic en una barra para navegar a la palanca en el seguimiento.</p>
+  </div>
+
+</div>
+
+<script>
+// ── DATA: GESTIÓN DE LEADS ──
+const palancasLeads = [
+  { tipo:'area_sep', texto:'COMPRA', color:'#1E3A5F' },
+  { tipo:'okr_titulo', texto:'OKR C1: Conversión Lead → Lead SQL / Oportunidad Compra' },
+  { tipo:'okr', codigo:'OKR-C1', texto:'OKR C1 – % Conversión Lead → Lead SQL / Oportunidad', meta:'3.0%', metaNum:3.0, direccion:'subir', unidad:'%' },
+  { tipo:'sub', texto:'Palancas OKR C1' },
+  { tipo:'pal', codigo:'C1.1', texto:'Palanca C1.1 – Contactabilidad Global de Leads de Compra', meta:'70%', metaNum:70, direccion:'subir', unidad:'%' },
+  { tipo:'pal', codigo:'C1.2', texto:'Palanca C1.2 – Tiempo Promedio de Primer Contacto', meta:'< 6h', metaNum:6, direccion:'bajar', unidad:'h' },
+  { tipo:'okr_titulo', texto:'OKR C2: Conversión Lead → Cita de Inspección Completada' },
+  { tipo:'okr', codigo:'OKR-C2', texto:'OKR C2 – % de Leads que Completan Cita de Inspección', meta:'Por definir', metaNum:null, direccion:'subir', unidad:'%' },
+  { tipo:'sub', texto:'Palancas OKR C2' },
+  { tipo:'pal', codigo:'C2.1', texto:'Palanca C2.1 – Validación y Seguimiento de Citas de Inspección', meta:'Por definir', metaNum:null, direccion:'subir', unidad:'%' },
+  { tipo:'pal', codigo:'C2.2', texto:'Palanca C2.2 – Capacitación y Auditoría de Protocolos', meta:'Por definir', metaNum:null, direccion:'subir', unidad:'%' },
+  { tipo:'area_sep', texto:'VENTA', color:'#7B1E1E' },
+  { tipo:'okr_titulo', texto:'OKR V1: Conversión Lead → Lead SQL / Oportunidad Venta' },
+  { tipo:'okr', codigo:'OKR-V1', texto:'OKR V1 – % de Leads Calificados como SQL / Oportunidad (Venta)', meta:'10%', metaNum:10, direccion:'subir', unidad:'%' },
+  { tipo:'sub', texto:'Palancas OKR V1' },
+  { tipo:'pal', codigo:'V1.1', texto:'Palanca V1.1 – % Leads SQL Segmento Oro + VIP con VPP (Flujo y Cadencia Exclusiva)', meta:'30%', metaNum:30, direccion:'subir', unidad:'%' },
+  { tipo:'pal', codigo:'V1.2', texto:'Palanca V1.2 – Segmentación de Leads + Paneles por Grupos de Foco', meta:'Por definir', metaNum:null, direccion:'subir', unidad:'%' },
+  { tipo:'okr_titulo', texto:'OKR V2: Conversión Lead → Cita de Venta Completada' },
+  { tipo:'okr', codigo:'OKR-V2', texto:'OKR V2 – Tasa de Citas de Venta Completadas / Efectivas (Asistencia a Piso)', meta:'30%', metaNum:30, direccion:'subir', unidad:'%' },
+  { tipo:'sub', texto:'Palancas OKR V2' },
+  { tipo:'pal', codigo:'V2.1', texto:'Palanca V2.1 – Automatización del Flujo de Confirmación y Recordatorio de Cita', meta:'Por definir', metaNum:null, direccion:'subir', unidad:'%' },
+  { tipo:'pal', codigo:'V2.2', texto:'Palanca V2.2 – Expansión a Sucursales + Rutina Diaria Jefe de Sucursal', meta:'30%', metaNum:30, direccion:'subir', unidad:'%' },
+];
+
+const semanasLeads = ['S4','S5','S6','S7','S8','S9','S10','S11','S12'];
+const fechasSemLeads = ['11/05','18/05','25/05','01/06','08/06','15/06','22/06','29/06','06/07'];
+
+const mesesLeads = [
+  {label:'Todos', semanas:null},
+  {label:'Mayo',  semanas:['S4','S5','S6']},
+  {label:'Junio', semanas:['S7','S8','S9','S10','S11']},
+  {label:'Julio', semanas:['S12']},
+];
+const mesesGanttLeads = [
+  {label:'Todos', ini:null, fin:null},
+  {label:'Mayo',  ini:new Date(2026,4,1), fin:new Date(2026,4,31)},
+  {label:'Junio', ini:new Date(2026,5,1), fin:new Date(2026,5,30)},
+  {label:'Julio', ini:new Date(2026,6,1), fin:new Date(2026,6,31)},
+];
+
+const iniciativasLeads = [
+  {codigo:'C1.1', iniciativa:'Cadencias de contactos automáticos y por diferentes canales', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,18), fin:new Date(2026,4,29)},
+  {codigo:'C1.1', iniciativa:'OTP en flujo inicial de Leads (solo números validados)', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,2,23), fin:new Date(2026,5,8)},
+  {codigo:'C1.2', iniciativa:'Reasignación Express', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,11), fin:new Date(2026,5,12)},
+  {codigo:'C1.2', iniciativa:'Monitoreo de colas y atención de leads (priorización)', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,11), fin:new Date(2026,4,29)},
+  {codigo:'C1.2', iniciativa:'Monitoreo de citas agendadas y atención (etapa nuevo)', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,11), fin:new Date(2026,4,29)},
+  {codigo:'C2.1', iniciativa:'Validación de citas de inspección desde el lead', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,11), fin:new Date(2026,4,29)},
+  {codigo:'OKR-C1', iniciativa:'Análisis de cliente y auto (Lead Scoring Predictivo)', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,25), fin:new Date(2026,5,5)},
+  {codigo:'C2.2', iniciativa:'Capacitación y auditoría de protocolos en llamadas', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,18), fin:new Date(2026,4,29)},
+  {codigo:'V1.2', iniciativa:'Segmentación de tipos de leads y diseño por paneles para trabajo por grupos de foco', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,18), fin:new Date(2026,4,29)},
+  {codigo:'V1.1', iniciativa:'Etapa maduración de lead para vendedor que no pese sobre el atraso para leads con cierre más largo', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,25), fin:new Date(2026,5,5)},
+  {codigo:'OKR-V1', iniciativa:'Análisis del perfil de los autos más vendidos y de los clientes que más compran para dar insights a Marketing', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,18), fin:new Date(2026,4,29)},
+  {codigo:'V1.1', iniciativa:'Flujos y cadencia exclusiva para leads SQL Segmento Oro + VIP con VPP', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,18), fin:new Date(2026,4,29)},
+  {codigo:'V1.1', iniciativa:'Asignación al asesor financiero directamente (Leads SQL con Financiamiento)', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,18), fin:new Date(2026,4,29)},
+  {codigo:'V1.1', iniciativa:'Abrir motivos de descarte para dar feedback a equipos de marketing', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,18), fin:new Date(2026,4,29)},
+  {codigo:'V2.2', iniciativa:'Expansión a todas las sucursales (2 zonas/semana) + rutina diaria jefe de sucursal + habilitación canal web', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,18), fin:new Date(2026,4,29)},
+  {codigo:'V2.1', iniciativa:'Automatización del flujo de confirmación y recordatorio de cita (eliminar dependencia del proceso manual del vendedor)', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,18), fin:new Date(2026,7,31)},
+];
+
+const colorPalancaLeads = {
+  'C1.1':{fill:'#85B7EB',text:'#042C53'},'C1.2':{fill:'#5DCAA5',text:'#04342C'},
+  'C2.1':{fill:'#EF9F27',text:'#412402'},'C2.2':{fill:'#AFA9EC',text:'#26215C'},
+  'OKR-C1':{fill:'#F0997B',text:'#4A1B0C'},'OKR-C2':{fill:'#ED93B1',text:'#4B1528'},
+  'V1.1':{fill:'#A8D5A2',text:'#1A4D2E'},'V1.2':{fill:'#58C9A5',text:'#0A3020'},
+  'V2.1':{fill:'#FFBA6B',text:'#4A2200'},'V2.2':{fill:'#CE93D8',text:'#4A0072'},
+  'OKR-V1':{fill:'#EF9A9A',text:'#7B1E1E'},'OKR-V2':{fill:'#F48FB1',text:'#880E4F'},
+};
+const ganttLabelsLeads = {
+  'C1.1':'Contactabilidad','C1.2':'Tiempo contacto','C2.1':'Validación citas','C2.2':'Capacitación',
+  'OKR-C1':'Lead Scoring','OKR-C2':'Cita Inspección','V1.1':'SQL Oro+VPP','V1.2':'Segmentación',
+  'V2.1':'Confirm. cita','V2.2':'Expansión suc.','OKR-V1':'Análisis leads','OKR-V2':'Cita Venta',
+};
+
+// ── DATA: PUBLICACIONES ──
+const palancasPub = [
+  {tipo:'area_sep', texto:'PUBLICACIONES WEB', color:'#065F46'},
+  {tipo:'okr_titulo', texto:'OKR7: Aumentar la cantidad de unidades publicadas + 400'},
+  {tipo:'okr', codigo:'OKR-P1', texto:'OKR 1-Pub – Inventario publicado en Vitrina 79,5% → 90%', meta:'90%', metaNum:90, direccion:'subir', unidad:'%'},
+  {tipo:'ref', codigo:'P1.proy', texto:'Proyección esperada del OKR', meta:'—'},
+  {tipo:'sub', texto:'Palancas OKR 1'},
+  {tipo:'pal', codigo:'P1.1', texto:'Publicar unidades en Acopio de 114 a <30', meta:'30', metaNum:30, direccion:'bajar', unidad:''},
+  {tipo:'ref', codigo:'P1.ref1', texto:'*Total unidades en Acopio', meta:'—'},
+  {tipo:'pal', codigo:'P1.2', texto:'Publicar unidades Reservadas 0 → 100%', meta:'100%', metaNum:100, direccion:'subir', unidad:'%'},
+  {tipo:'ref', codigo:'P1.ref2', texto:'Reservas Publicadas', meta:'—'},
+  {tipo:'ref', codigo:'P1.ref3', texto:'*Total unidades Reservadas', meta:'—'},
+  {tipo:'okr_titulo', texto:'OKR8: Mejorar la calidad de la Vitrina aumentando la calidad en fotos'},
+  {tipo:'okr', codigo:'OKR-P2', texto:'OKR 2-Fotos – Unidades publicadas con foto Impel 61,5% → 95%', meta:'95%', metaNum:95, direccion:'subir', unidad:'%'},
+  {tipo:'ref', codigo:'P2.proy', texto:'Proyección esperada del OKR', meta:'—'},
+  {tipo:'sub', texto:'Palancas OKR 2'},
+  {tipo:'ref', codigo:'P2.ref1', texto:'Unidades con foto Impel', meta:'—'},
+  {tipo:'ref', codigo:'P2.ref2', texto:'*Total unidades Publicadas', meta:'—'},
+  {tipo:'okr', codigo:'OKR-P3', texto:'OKR 3-Fotos – Disminuir unidades sin foto en sitio web 338 → <30', meta:'<30', metaNum:30, direccion:'bajar', unidad:''},
+  {tipo:'sub', texto:'Palancas OKR 3'},
+  {tipo:'pal', codigo:'P3.1', texto:'Disminuir unidades publicadas sin fotos', meta:'30', metaNum:30, direccion:'bajar', unidad:''},
+  {tipo:'ref', codigo:'P3.ref1', texto:'*Total unidades Publicadas', meta:'—'},
+  {tipo:'pal', codigo:'P3.2', texto:'Unidades Test Car ingresadas al Flujo Llaima', meta:'100%', metaNum:100, direccion:'subir', unidad:'%'},
+];
+
+const semanasPub = ['S1','S2','S3','S4','S5','S6','S7','S8','S9','S10','S11','S12'];
+const fechasSemPub = ['20/04','27/04','04/05','11/05','18/05','25/05','01/06','08/06','15/06','22/06','29/06','06/07'];
+
+const mesesPub = [
+  {label:'Todos', semanas:null},
+  {label:'Abril', semanas:['S1','S2']},
+  {label:'Mayo',  semanas:['S3','S4','S5','S6']},
+  {label:'Junio', semanas:['S7','S8','S9','S10','S11']},
+  {label:'Julio', semanas:['S12']},
+];
+const mesesGanttPub = [
+  {label:'Todos', ini:null, fin:null},
+  {label:'Abril', ini:new Date(2026,3,1), fin:new Date(2026,3,30)},
+  {label:'Mayo',  ini:new Date(2026,4,1), fin:new Date(2026,4,31)},
+  {label:'Junio', ini:new Date(2026,5,1), fin:new Date(2026,5,30)},
+  {label:'Julio', ini:new Date(2026,6,1), fin:new Date(2026,6,31)},
+];
+
+const iniciativasPub = [
+  {codigo:'P1.1', iniciativa:'Publicar unidades en Acopio', prio:'Alta', estado:'Ok', responsable:'D. Villegas', ini:new Date(2026,4,1), fin:new Date(2026,4,31)},
+  {codigo:'P1.1', iniciativa:'Generar cambio de estado a Gestpark de "previsión" a "Stock" al aplicar Checklist de Entrega', prio:'Alta', estado:'No Iniciado', responsable:'D. Abarca', ini:new Date(2026,4,15), fin:new Date(2026,7,31)},
+  {codigo:'P1.2', iniciativa:'Publicar Unidades Reservadas', prio:'Alta', estado:'Ok', responsable:'D. Abarca', ini:new Date(2026,3,15), fin:new Date(2026,4,15)},
+  {codigo:'P1.2', iniciativa:'Liberación automática de reservas fantasma', prio:'Alta', estado:'Ok', responsable:'D. Abarca', ini:new Date(2026,3,15), fin:new Date(2026,4,15)},
+  {codigo:'P1.2', iniciativa:'Regla en Llaima: liberación a 48h sin avance', prio:'Alta', estado:'Ok', responsable:'D. Abarca', ini:new Date(2026,4,15), fin:new Date(2026,4,31)},
+  {codigo:'P1.2', iniciativa:'Alerta al asesor antes del vencimiento', prio:'Alta', estado:'Ok', responsable:'D. Abarca', ini:new Date(2026,4,15), fin:new Date(2026,4,31)},
+  {codigo:'P1.2', iniciativa:'Diferenciar reserva comercial activa vs. fantasma (>30 días sin avance)', prio:'Alta', estado:'Ok', responsable:'D. Abarca', ini:new Date(2026,4,15), fin:new Date(2026,4,31)},
+  {codigo:'OKR-P2', iniciativa:'[TRANSFORMACIONAL] Foto final in-house al momento de la inspección mecánica', prio:'Alta', estado:'No Iniciado', responsable:'V. Araya', ini:new Date(2026,4,15), fin:new Date(2026,6,15)},
+  {codigo:'OKR-P2', iniciativa:'SLA transitorio foto tomada → Impel <24h', prio:'Media', estado:'No Iniciado', responsable:'J. Jerez / D. Villegas', ini:new Date(2026,4,15), fin:new Date(2026,4,31)},
+  {codigo:'OKR-P2', iniciativa:'Target mínimo 80% por zona hasta completar el roll-out', prio:'Media', estado:'No Iniciado', responsable:'J. Jerez / D. Villegas', ini:new Date(2026,4,15), fin:new Date(2026,4,31)},
+  {codigo:'OKR-P2', iniciativa:'Priorización de stock premium durante transición', prio:'Media', estado:'No Iniciado', responsable:'J. Jerez / D. Villegas', ini:new Date(2026,4,15), fin:new Date(2026,4,31)},
+  {codigo:'P3.1', iniciativa:'Ingresar a Llaima todas las unidades que ingresan al stock (sumar Test car)', prio:'Media', estado:'No Iniciado', responsable:'D. Villegas', ini:new Date(2026,4,15), fin:new Date(2026,4,31)},
+  {codigo:'P3.1', iniciativa:'Priorización de stock sin fotografía', prio:'Media', estado:'No Iniciado', responsable:'J. Jerez / D. Villegas', ini:new Date(2026,4,15), fin:new Date(2026,4,31)},
+  {codigo:'P3.1', iniciativa:'Alerta cuando backlog >20% del publicado', prio:'Media', estado:'No Iniciado', responsable:'J. Jerez / D. Villegas', ini:new Date(2026,4,15), fin:new Date(2026,4,31)},
+];
+
+const colorPalancaPub = {
+  'P1.1':{fill:'#6EE7B7',text:'#065F46'},'P1.2':{fill:'#34D399',text:'#064E3B'},
+  'P3.1':{fill:'#FCD34D',text:'#78350F'},'P3.2':{fill:'#93C5FD',text:'#1E3A8A'},
+  'OKR-P1':{fill:'#A7F3D0',text:'#064E3B'},'OKR-P2':{fill:'#FECACA',text:'#7F1D1D'},
+  'OKR-P3':{fill:'#FEF08A',text:'#713F12'},
+};
+const ganttLabelsPub = {
+  'P1.1':'Acopio','P1.2':'Reservas fantasma',
+  'P3.1':'Sin foto','P3.2':'Test Car Llaima',
+  'OKR-P1':'Publicaciones','OKR-P2':'Foto Impel','OKR-P3':'Backlog fotos',
+};
+
+// ── STATE ──
+let currentSquad = 'leads';
+let datosLeads = {};
+let datosPub = {};
+let currentFilter = null;
+let currentMesIdx = 0;
+let currentGanttMes = 0;
+
+// ── HELPERS ──
+function sq() {
+  if (currentSquad === 'pub') return {
+    palancas:palancasPub, iniciativas:iniciativasPub,
+    semanas:semanasPub, fechasSemana:fechasSemPub,
+    meses:mesesPub, mesesGantt:mesesGanttPub,
+    colorPalanca:colorPalancaPub, ganttLabels:ganttLabelsPub,
+  };
+  return {
+    palancas:palancasLeads, iniciativas:iniciativasLeads,
+    semanas:semanasLeads, fechasSemana:fechasSemLeads,
+    meses:mesesLeads, mesesGantt:mesesGanttLeads,
+    colorPalanca:colorPalancaLeads, ganttLabels:ganttLabelsLeads,
+  };
+}
+function getDatos() { return currentSquad === 'pub' ? datosPub : datosLeads; }
+
+function getSemanaActual(sems, dates) {
+  const hoy = new Date();
+  for (let i = 0; i < sems.length; i++) {
+    const p = dates[i].split('/');
+    const ini = new Date(2026, parseInt(p[1])-1, parseInt(p[0]));
+    const fin = new Date(ini); fin.setDate(fin.getDate()+6);
+    if (hoy >= ini && hoy <= fin) return sems[i];
+  }
+  return null;
+}
+const semActualLeads = getSemanaActual(semanasLeads, fechasSemLeads);
+const semActualPub   = getSemanaActual(semanasPub,   fechasSemPub);
+function getSemActual() { return currentSquad === 'pub' ? semActualPub : semActualLeads; }
+
+function semanasActivas() {
+  const {meses, semanas} = sq();
+  return currentMesIdx === 0 || !meses[currentMesIdx].semanas ? semanas : meses[currentMesIdx].semanas;
+}
+
+function parseNum(str) {
+  if (!str) return null;
+  const n = parseFloat(String(str).replace(/[%h<>\s]/g,'').replace(',','.'));
+  return isNaN(n) ? null : n;
+}
+
+function getStatusInfo(valor, p) {
+  const num = parseNum(valor);
+  if (num === null || p.metaNum === null) return {pct:0, color:'#CBD5E1', label:'Sin datos', cls:'c-none'};
+  const ratio = p.direccion === 'subir' ? num/p.metaNum : p.metaNum/num;
+  const pct = Math.min(100, Math.round(ratio*100));
+  if (ratio >= 0.9) return {pct, color:'#059669', label:'En meta',   cls:'c-ok'};
+  if (ratio >= 0.7) return {pct, color:'#D97706', label:'En riesgo', cls:'c-warn'};
+  return               {pct, color:'#DC2626', label:'Bajo meta',  cls:'c-bad'};
+}
+
+function statusClass(valor, p) {
+  const num = parseNum(valor);
+  if (num === null || p.metaNum === null) return '';
+  const ratio = p.direccion === 'subir' ? num/p.metaNum : p.metaNum/num;
+  if (ratio >= 0.9) return 'status-ok';
+  if (ratio >= 0.7) return 'status-warn';
+  return 'status-bad';
+}
+
+function getLastValue(codigo) {
+  const d = getDatos();
+  const sems = sq().semanas;
+  const f = d[codigo] || {};
+  for (let i = sems.length-1; i >= 0; i--) {
+    if (f[sems[i]] && f[sems[i]].trim()) return f[sems[i]];
+  }
+  return '';
+}
+
+function ultimoCell(v, si, p) {
+  if (!v) return '<span style="color:#9CA3AF;font-weight:400;">—</span>';
+  const bar = p.metaNum !== null
+    ? `<div style="height:3px;background:#E2E8F0;border-radius:99px;margin-top:4px;overflow:hidden;"><div style="height:100%;width:${si.pct}%;background:${si.color};border-radius:99px;"></div></div>`
+    : '';
+  return `<div><span style="font-weight:700;font-size:13px;color:#0F172A;">${v}</span>${bar}</div>`;
+}
+
+// ── STORAGE ──
+function loadData() {
+  try { const r = localStorage.getItem('okrs_leads_v1'); if (r) datosLeads = JSON.parse(r); } catch(e) {}
+  try { const r = localStorage.getItem('okrs_pub_v1');   if (r) datosPub   = JSON.parse(r); } catch(e) {}
+}
+function saveData() {
+  const key = currentSquad === 'pub' ? 'okrs_pub_v1' : 'okrs_leads_v1';
+  try {
+    localStorage.setItem(key, JSON.stringify(getDatos()));
+    const el = document.getElementById('save-status');
+    el.textContent = '✓ Guardado';
+    setTimeout(() => { el.textContent = ''; }, 1500);
+  } catch(e) {}
+}
+
+// ── INTERACTIONS ──
+function onCellChange(input, codigo, sem) {
+  const d = getDatos();
+  if (!d[codigo]) d[codigo] = {};
+  d[codigo][sem] = input.value;
+  const p = sq().palancas.find(x => x.codigo === codigo);
+  const cell = input.parentElement;
+  cell.classList.remove('status-ok','status-warn','status-bad');
+  if (p && (p.tipo === 'okr' || p.tipo === 'pal')) {
+    const cls = statusClass(input.value, p);
+    if (cls) cell.classList.add(cls);
+  }
+  if (p) {
+    const uel = document.getElementById('last-'+codigo);
+    if (uel) {
+      const v = getLastValue(codigo);
+      uel.innerHTML = ultimoCell(v, getStatusInfo(v, p), p);
+    }
+  }
+  saveData();
+  renderKPIs();
+}
+
+function showSquad(squad) {
+  currentSquad = squad;
+  currentMesIdx = 0;
+  currentGanttMes = 0;
+  currentFilter = null;
+  document.querySelectorAll('.squad-tab').forEach(t => t.classList.toggle('squad-active', t.dataset.squad === squad));
+  document.getElementById('filter-banner').style.display = 'none';
+  const info = squad === 'pub'
+    ? {name:'Publicaciones Web', lider:'Javiera Jerez'}
+    : {name:'Gestión de Leads',  lider:'Mayorin Vivas'};
+  document.getElementById('hdr-eye').textContent   = 'Americar · ' + info.name + ' · Q2 2026';
+  document.getElementById('hdr-lider').textContent = info.lider;
+  renderMonthButtons();
+  renderKPIs();
+  renderSeguimiento();
+  if (document.getElementById('view-road').style.display !== 'none') renderGantt();
+}
+
+function showMes(idx) {
+  currentMesIdx = idx;
+  renderMonthButtons();
+  renderSeguimiento();
+}
+
+function showGanttMes(idx) {
+  currentGanttMes = idx;
+  renderMonthButtons();
+  renderGantt();
+}
+
+function showTab(tab) {
+  document.getElementById('view-seg').style.display  = tab === 'seg'  ? '' : 'none';
+  document.getElementById('view-road').style.display = tab === 'road' ? '' : 'none';
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if (tab === 'road') renderGantt();
+}
+
+function filterRoadmap(codigo) {
+  currentFilter = codigo;
+  document.getElementById('filter-banner').style.display = 'flex';
+  document.getElementById('filter-text').textContent = 'Iniciativas de: ' + codigo;
+  showTab('road');
+}
+
+function clearFilter() {
+  currentFilter = null;
+  document.getElementById('filter-banner').style.display = 'none';
+  renderGantt();
+}
+
+function goToPalanca(codigo) {
+  clearFilter();
+  showTab('seg');
+  setTimeout(() => {
+    const el = document.getElementById('row-'+codigo);
+    if (!el) return;
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+    el.style.outline = '2px solid #3B82F6';
+    setTimeout(() => { el.style.outline = 'none'; }, 1200);
+  }, 50);
+}
+
+function exportData() {
+  const {palancas, semanas, fechasSemana} = sq();
+  const d = getDatos();
+  let csv = 'OKR/Palanca,Código,Meta,' + semanas.map((s,i) => s+' ('+fechasSemana[i]+')').join(',') + '\n';
+  for (const p of palancas) {
+    if (p.tipo !== 'okr' && p.tipo !== 'pal') continue;
+    const f = d[p.codigo] || {};
+    csv += `"${p.texto}",${p.codigo},${p.meta},${semanas.map(s => f[s]||'').join(',')}\n`;
+  }
+  const name = currentSquad === 'pub' ? 'publicaciones' : 'leads';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'}));
+  a.download = 'seguimiento_okrs_' + name + '.csv';
+  a.click();
+}
+
+function resetData() {
+  if (!confirm('¿Borrar todos los valores ingresados para este squad?')) return;
+  if (currentSquad === 'pub') { datosPub = {}; try { localStorage.removeItem('okrs_pub_v1'); } catch(e) {} }
+  else { datosLeads = {}; try { localStorage.removeItem('okrs_leads_v1'); } catch(e) {} }
+  renderSeguimiento();
+  renderKPIs();
+}
+
+// ── RENDER MONTH BUTTONS ──
+function renderMonthButtons() {
+  const {meses, mesesGantt} = sq();
+  document.getElementById('mes-group-seg').innerHTML = meses.map((m,i) =>
+    `<button class="mes-btn${i===currentMesIdx?' active':''}" onclick="showMes(${i})">${m.label}</button>`
+  ).join('');
+  document.getElementById('mes-group-gantt').innerHTML = mesesGantt.map((m,i) =>
+    `<button class="mes-btn${i===currentGanttMes?' active':''}" onclick="showGanttMes(${i})">${m.label}</button>`
+  ).join('');
+}
+
+// ── RENDER KPIs ──
+function renderKPIs() {
+  const okrs = sq().palancas.filter(p => p.tipo === 'okr');
+  document.getElementById('kpi-grid').innerHTML = okrs.map(okr => {
+    const v  = getLastValue(okr.codigo);
+    const si = getStatusInfo(v, okr);
+    let accent, badgeCls, badgeLabel;
+    if      (okr.codigo.startsWith('OKR-C')) { accent='#1E40AF'; badgeCls='badge-c'; badgeLabel='Compra'; }
+    else if (okr.codigo.startsWith('OKR-V')) { accent='#991B1B'; badgeCls='badge-v'; badgeLabel='Venta';  }
+    else                                     { accent='#065F46'; badgeCls='badge-p'; badgeLabel='Pub.';   }
+    const shortName = okr.texto.replace(/^OKR \d+[-–—][^\s]+ [-–—]\s*/,'').replace(/^OKR [CV]\d+\s*[-–—]\s*/,'');
+    return `
+    <div class="kpi-card">
+      <div class="kpi-stripe" style="background:${accent};"></div>
+      <span class="kpi-badge ${badgeCls}">${badgeLabel} · ${okr.codigo}</span>
+      <div class="kpi-name">${shortName}</div>
+      <div class="kpi-nums">
+        <span class="kpi-actual">${v||'—'}</span>
+        <span class="kpi-target">/ ${okr.meta}</span>
+      </div>
+      <div class="kpi-bar-bg"><div class="kpi-bar-fill" style="width:${si.pct}%;background:${si.color};"></div></div>
+      <span class="kpi-foot ${si.cls}">${si.label}${si.pct>0?' · '+si.pct+'%':''}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER SEGUIMIENTO ──
+function renderSeguimiento() {
+  const {semanas, fechasSemana} = sq();
+  const activas = semanasActivas();
+  const semAct  = getSemActual();
+  const cols    = 3 + activas.length;
+
+  const thSems = activas.map(sem => {
+    const i = semanas.indexOf(sem);
+    const esCurrent = sem === semAct;
+    const thStyle = esCurrent
+      ? 'text-align:center;min-width:62px;background:#F0FDF4;border-bottom:3px solid #16A34A;position:relative;padding-top:4px;'
+      : 'text-align:center;min-width:62px;';
+    const semLabel = esCurrent
+      ? `<div style="color:#16A34A;font-size:13px;line-height:1;margin-bottom:1px;">▼</div><span style="color:#15803D;font-weight:700;">${sem}</span>`
+      : `<span>${sem}</span>`;
+    const fechaStyle = esCurrent ? 'font-weight:600;color:#16A34A;' : 'font-weight:400;color:#94A3B8;';
+    return `<th style="${thStyle}">${semLabel}<br><span style="${fechaStyle}">${fechasSemana[i]}</span></th>`;
+  }).join('');
+
+  const thead = `<thead><tr>
+    <th style="min-width:240px;text-align:left;padding-left:16px;">OKR / Palanca</th>
+    <th style="text-align:center;min-width:64px;">Meta</th>
+    <th style="text-align:center;min-width:82px;">Último</th>
+    ${thSems}
+  </tr></thead>`;
+
+  let rows = '';
+  for (const p of sq().palancas) {
+    if (p.tipo === 'area_sep') {
+      rows += `<tr><td colspan="${cols}" style="background:${p.color};color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:9px 16px;">${p.texto}</td></tr>`;
+    } else if (p.tipo === 'okr_titulo') {
+      rows += `<tr><td colspan="${cols}" style="background:#EFF6FF;color:#1E40AF;font-size:12px;font-weight:600;padding:9px 16px;border-top:1px solid #BFDBFE;border-bottom:1px solid #BFDBFE;">${p.texto}</td></tr>`;
+    } else if (p.tipo === 'sub') {
+      rows += `<tr><td colspan="${cols}" style="background:#F8FAFC;color:#94A3B8;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:5px 16px;border-bottom:1px solid #E2E8F0;">${p.texto}</td></tr>`;
+    } else if (p.tipo === 'ref') {
+      const d = getDatos();
+      const cells = activas.map(sem => {
+        const val = (d[p.codigo] && d[p.codigo][sem]) || '';
+        const cBg = sem === semAct ? 'background:#F7FFF7;' : 'background:#FAFAFA;';
+        return `<td class="sem-cell" style="${cBg}"><input class="sem-input" type="text" value="${val.replace(/"/g,'&quot;')}" placeholder="—" style="font-style:italic;font-size:11.5px;color:#9CA3AF;" oninput="onCellChange(this,'${p.codigo}','${sem}')" /></td>`;
+      }).join('');
+      rows += `<tr id="row-${p.codigo}" style="background:#FAFAFA;">
+        <td style="padding:5px 16px 5px 40px;border-bottom:1px solid #F1F5F9;font-style:italic;color:#9CA3AF;font-size:11px;">${p.texto}</td>
+        <td style="text-align:center;padding:5px 6px;border-bottom:1px solid #F1F5F9;color:#E2E8F0;">—</td>
+        <td style="text-align:center;padding:5px 8px;border-bottom:1px solid #F1F5F9;"></td>
+        ${cells}
+      </tr>`;
+    } else if (p.tipo === 'okr' || p.tipo === 'pal') {
+      const isOkr = p.tipo === 'okr';
+      const isV   = p.codigo && p.codigo.startsWith('V');
+      const isP   = p.codigo && p.codigo.startsWith('P') || p.codigo && p.codigo.startsWith('OKR-P');
+      const rowBg = isOkr ? (isV ? '#FFF8F8' : isP ? '#F0FDF9' : '#FFFBF0') : '#fff';
+      const nameIndent = isOkr ? 'padding-left:16px;font-weight:600;' : 'padding-left:28px;';
+      const v  = getLastValue(p.codigo);
+      const si = getStatusInfo(v, p);
+
+      const cells = activas.map(sem => {
+        const val = (getDatos()[p.codigo] && getDatos()[p.codigo][sem]) || '';
+        const cls = statusClass(val, p);
+        const currentBorder = sem === semAct ? 'border-left:2px solid #22C55E;' : '';
+        const currentBg     = (!cls && sem === semAct) ? 'background:#F0FDF4;' : '';
+        return `<td class="sem-cell ${cls}" style="${currentBorder}${currentBg}"><input class="sem-input" type="text" value="${val.replace(/"/g,'&quot;')}" placeholder="—" oninput="onCellChange(this,'${p.codigo}','${sem}')" /></td>`;
+      }).join('');
+
+      rows += `<tr id="row-${p.codigo}" style="background:${rowBg};">
+        <td style="${nameIndent}padding-top:10px;padding-bottom:10px;padding-right:10px;border-bottom:1px solid #F1F5F9;cursor:pointer;color:#0F172A;line-height:1.35;" onclick="filterRoadmap('${p.codigo}')">${p.texto} <span style="font-size:10px;color:#CBD5E1;">↗</span></td>
+        <td style="text-align:center;padding:10px 6px;border-bottom:1px solid #F1F5F9;font-weight:600;color:#374151;white-space:nowrap;">${p.meta}</td>
+        <td id="last-${p.codigo}" style="text-align:center;padding:8px;border-bottom:1px solid #F1F5F9;">${ultimoCell(v,si,p)}</td>
+        ${cells}
+      </tr>`;
+    }
+  }
+
+  document.getElementById('seg-table-wrap').innerHTML =
+    `<table class="seg-table" style="min-width:${400+activas.length*65}px;">${thead}<tbody>${rows}</tbody></table>`;
+}
+
+// ── RENDER GANTT ──
+function fmtF(d) { return d.toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit'}); }
+function diffD(a,b) { return Math.round((b-a)/86400000); }
+
+const priOrder = {'Alta':1,'Media':2,'Baja':3};
+const priColor = {
+  'Alta':{bg:'#FEE2E2',text:'#991B1B'},
+  'Media':{bg:'#FEF3C7',text:'#92400E'},
+  'Baja':{bg:'#E0F2FE',text:'#0369A1'},
+};
+
+function renderGantt() {
+  const {iniciativas, colorPalanca, ganttLabels, mesesGantt} = sq();
+  const container = document.getElementById('gantt-container');
+
+  let data = currentFilter ? iniciativas.filter(i => i.codigo === currentFilter) : [...iniciativas];
+  if (!currentFilter && currentGanttMes > 0) {
+    const m = mesesGantt[currentGanttMes];
+    data = data.filter(i => i.ini <= m.fin && i.fin >= m.ini);
+  }
+  data.sort((a,b) => (priOrder[a.prio]||99)-(priOrder[b.prio]||99) || a.ini-b.ini);
+
+  const countEl = document.getElementById('gantt-count');
+  if (countEl) countEl.textContent = data.length + ' iniciativa' + (data.length !== 1 ? 's' : '');
+
+  if (!data.length) {
+    container.innerHTML = `<p style="padding:24px;text-align:center;color:#94A3B8;">Sin iniciativas${currentFilter ? ' para '+currentFilter : ''}.</p>`;
+    return;
+  }
+
+  let minD = new Date(Math.min(...data.map(i => i.ini.getTime())));
+  let maxD = new Date(Math.max(...data.map(i => i.fin.getTime())));
+  minD.setDate(minD.getDate() - ((minD.getDay()+6)%7));
+  maxD.setDate(maxD.getDate() + (7-((maxD.getDay()+6)%7))%7);
+  const totalDays = diffD(minD, maxD)+1;
+
+  const weekStarts = [];
+  let cur = new Date(minD);
+  while (cur <= maxD) { weekStarts.push(new Date(cur)); cur.setDate(cur.getDate()+7); }
+
+  const estadoInfo = {
+    'Ok':          {bg:'#D1FAE5',text:'#065F46'},
+    'No Iniciado': {bg:'#F1F5F9',text:'#64748B'},
+    'En Proceso':  {bg:'#FEF3C7',text:'#92400E'},
+    'En Riesgo':   {bg:'#FEE2E2',text:'#991B1B'},
+  };
+  const lW=180, cW=42, pW=38, eW=68, rW=96, dW=82, gW=Math.max(420, weekStarts.length*60), rowH=28;
+
+  let html = `<div style="min-width:${lW+cW+pW+eW+rW+dW+gW}px;position:relative;">`;
+
+  html += `<div style="display:flex;background:#F8FAFC;border-bottom:1px solid #E2E8F0;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6B7280;">
+    <div style="width:${lW}px;padding:7px 12px;flex-shrink:0;">Iniciativa</div>
+    <div style="width:${cW}px;padding:7px 4px;text-align:center;flex-shrink:0;">Pal.</div>
+    <div style="width:${pW}px;padding:7px 4px;text-align:center;flex-shrink:0;">Prio.</div>
+    <div style="width:${eW}px;padding:7px 4px;text-align:center;flex-shrink:0;">Estado</div>
+    <div style="width:${rW}px;padding:7px 4px;text-align:center;flex-shrink:0;">Responsable</div>
+    <div style="width:${dW}px;padding:7px 4px;text-align:center;flex-shrink:0;">Inicio–Fin</div>
+    <div style="width:${gW}px;position:relative;flex-shrink:0;height:30px;">`;
+  for (const ws of weekStarts) {
+    const left = (diffD(minD,ws)/totalDays)*gW;
+    html += `<div style="position:absolute;left:${left}px;width:${(7/totalDays)*gW}px;padding:7px 0;text-align:center;font-size:9px;color:#94A3B8;border-left:1px solid #E2E8F0;">${fmtF(ws)}</div>`;
+  }
+  html += `</div></div>`;
+
+  for (const it of data) {
+    const c  = colorPalanca[it.codigo] || {fill:'#CBD5E1',text:'#374151'};
+    const pc = priColor[it.prio]       || {bg:'#F1F5F9',text:'#64748B'};
+    const left  = (diffD(minD,it.ini)/totalDays)*gW;
+    const dur   = diffD(it.ini,it.fin)+1;
+    const width = Math.max(18,(dur/totalDays)*gW);
+
+    html += `<div class="gantt-row" style="display:flex;border-bottom:1px solid #F1F5F9;align-items:center;height:${rowH}px;background:#fff;">
+      <div title="${it.iniciativa}" style="width:${lW}px;padding:0 12px;font-size:10px;flex-shrink:0;color:#374151;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${it.iniciativa}</div>
+      <div style="width:${cW}px;padding:0 3px;text-align:center;flex-shrink:0;"><span onclick="goToPalanca('${it.codigo}')" style="cursor:pointer;background:${c.fill};color:${c.text};padding:2px 5px;border-radius:3px;font-weight:600;font-size:9px;white-space:nowrap;">${it.codigo}</span></div>
+      <div style="width:${pW}px;padding:0 3px;text-align:center;flex-shrink:0;"><span style="background:${pc.bg};color:${pc.text};padding:2px 5px;border-radius:3px;font-weight:600;font-size:9px;">${it.prio}</span></div>
+      <div style="width:${eW}px;padding:0 3px;text-align:center;flex-shrink:0;">${(()=>{const ei=estadoInfo[it.estado]||{bg:'#F1F5F9',text:'#64748B'};return `<span style="background:${ei.bg};color:${ei.text};padding:2px 5px;border-radius:3px;font-weight:600;font-size:9px;white-space:nowrap;">${it.estado}</span>`;})()}</div>
+      <div style="width:${rW}px;padding:0 6px;text-align:left;font-size:9px;color:#374151;flex-shrink:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;" title="${it.responsable||'—'}">${it.responsable||'—'}</div>
+      <div style="width:${dW}px;padding:0 3px;text-align:center;font-size:9.5px;color:#9CA3AF;flex-shrink:0;white-space:nowrap;">${fmtF(it.ini)}–${fmtF(it.fin)}</div>
+      <div style="width:${gW}px;position:relative;flex-shrink:0;height:100%;">`;
+    for (const ws of weekStarts) {
+      html += `<div style="position:absolute;left:${(diffD(minD,ws)/totalDays)*gW}px;top:0;bottom:0;width:1px;background:#F1F5F9;"></div>`;
+    }
+    const barClr = {'Ok':'#22C55E','No Iniciado':'#94A3B8','En Proceso':'#F59E0B','En Riesgo':'#EF4444'}[it.estado]||'#94A3B8';
+html += `<div class="gantt-bar" onclick="goToPalanca('${it.codigo}')" title="${it.iniciativa} · ${it.estado} · ${it.responsable||'—'} · ${fmtF(it.ini)}–${fmtF(it.fin)}" style="position:absolute;left:${left}px;top:50%;transform:translateY(-50%);width:${width}px;height:14px;background:${barClr};border-radius:3px;cursor:pointer;border-left:3px solid ${c.fill};overflow:hidden;"></div>
+      </div></div>`;
+  }
+
+  const hoy = new Date();
+  if (hoy >= minD && hoy <= maxD) {
+    const hL = lW+cW+pW+eW+rW+dW+(diffD(minD,hoy)/totalDays)*gW;
+    html += `<div style="position:absolute;left:${hL}px;top:0;bottom:0;width:2px;background:#EF4444;pointer-events:none;z-index:5;opacity:.65;"></div>`;
+  }
+  html += `</div>`;
+  container.innerHTML = html;
+
+  const codes = [...new Set(data.map(i => i.codigo))];
+  document.getElementById('gantt-legend').innerHTML =
+    '<span style="font-weight:600;color:#374151;margin-right:4px;">Palancas:</span>' +
+    codes.map(cd => {
+      const c = colorPalanca[cd] || {fill:'#CBD5E1'};
+      return `<span class="gchip"><span class="gchip-dot" style="background:${c.fill};"></span>${cd} ${ganttLabels[cd]||''}</span>`;
+    }).join('');
+}
+
+// ── HEADER ──
+function initHeader() {
+  const hoy = new Date();
+  const fmtHoy = hoy.toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const sem = getSemActual();
+  document.getElementById('hdr-sem').textContent   = sem ? 'Semana ' + sem : 'Q2 2026';
+  document.getElementById('hdr-fecha').textContent = fmtHoy;
+  document.getElementById('hdr-ultima').textContent = fmtHoy;
+}
+
+// ── INIT ──
+loadData();
+initHeader();
+renderMonthButtons();
+renderKPIs();
+renderSeguimiento();
+renderGantt();
+</script>
+</body>
+</html>
