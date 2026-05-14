@@ -700,6 +700,11 @@ function renderKPIs() {
 }
 
 // ── RENDER SEGUIMIENTO ──
+const expandedPals = new Set();
+function togglePal(codigo) {
+  expandedPals.has(codigo) ? expandedPals.delete(codigo) : expandedPals.add(codigo);
+  renderSeguimiento();
+}
 function renderSeguimiento() {
   const {semanas, fechasSemana} = sq();
   const activas = semanasActivas();
@@ -726,15 +731,30 @@ function renderSeguimiento() {
     ${thSems}
   </tr></thead>`;
 
+  // pre-compute which pal codes have ref children
+  const palHasRefs = new Set();
+  { let tp = null;
+    for (const p of sq().palancas) {
+      if (p.tipo === 'pal') { tp = p.codigo; }
+      else if (p.tipo === 'ref' && tp) { palHasRefs.add(tp); }
+      else { tp = null; }
+    }
+  }
+
   let rows = '';
+  let currentPalParent = null;
   for (const p of sq().palancas) {
     if (p.tipo === 'area_sep') {
+      currentPalParent = null;
       rows += `<tr><td colspan="${cols}" style="background:${p.color};color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:9px 16px;">${p.texto}</td></tr>`;
     } else if (p.tipo === 'okr_titulo') {
+      currentPalParent = null;
       rows += `<tr><td colspan="${cols}" style="background:#EFF6FF;color:#1E40AF;font-size:12px;font-weight:600;padding:9px 16px;border-top:1px solid #BFDBFE;border-bottom:1px solid #BFDBFE;">${p.texto}</td></tr>`;
     } else if (p.tipo === 'sub') {
+      currentPalParent = null;
       rows += `<tr><td colspan="${cols}" style="background:#F8FAFC;color:#94A3B8;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:5px 16px;border-bottom:1px solid #E2E8F0;">${p.texto}</td></tr>`;
     } else if (p.tipo === 'ref') {
+      if (currentPalParent && !expandedPals.has(currentPalParent)) continue;
       const d = getDatos();
       const cells = activas.map(sem => {
         const val = (d[p.codigo] && d[p.codigo][sem]) || '';
@@ -742,17 +762,20 @@ function renderSeguimiento() {
         return `<td class="sem-cell" style="${cBg}"><input class="sem-input" type="text" value="${val.replace(/"/g,'&quot;')}" placeholder="—" style="font-style:italic;font-size:11.5px;color:#9CA3AF;" oninput="onCellChange(this,'${p.codigo}','${sem}')" /></td>`;
       }).join('');
       rows += `<tr id="row-${p.codigo}" style="background:#FAFAFA;">
-        <td style="padding:5px 16px 5px 40px;border-bottom:1px solid #F1F5F9;font-style:italic;color:#9CA3AF;font-size:11px;">${p.texto}</td>
+        <td style="padding:5px 16px 5px 48px;border-bottom:1px solid #F1F5F9;font-style:italic;color:#9CA3AF;font-size:11px;">${p.texto}</td>
         <td style="text-align:center;padding:5px 6px;border-bottom:1px solid #F1F5F9;color:#E2E8F0;">—</td>
         <td style="text-align:center;padding:5px 8px;border-bottom:1px solid #F1F5F9;"></td>
         ${cells}
       </tr>`;
     } else if (p.tipo === 'okr' || p.tipo === 'pal') {
       const isOkr = p.tipo === 'okr';
+      if (isOkr) currentPalParent = null;
+      else currentPalParent = p.codigo;
+
       const isV   = p.codigo && p.codigo.startsWith('V');
       const isP   = p.codigo && p.codigo.startsWith('P') || p.codigo && p.codigo.startsWith('OKR-P');
       const rowBg = isOkr ? (isV ? '#FFF8F8' : isP ? '#F0FDF9' : '#FFFBF0') : '#fff';
-      const nameIndent = isOkr ? 'padding-left:16px;font-weight:600;' : 'padding-left:28px;';
+      const nameIndent = isOkr ? 'padding-left:16px;font-weight:600;' : 'padding-left:12px;';
       const v  = getLastValue(p.codigo);
       const si = getStatusInfo(v, p);
 
@@ -764,8 +787,14 @@ function renderSeguimiento() {
         return `<td class="sem-cell ${cls}" style="${currentBorder}${currentBg}"><input class="sem-input" type="text" value="${val.replace(/"/g,'&quot;')}" placeholder="—" oninput="onCellChange(this,'${p.codigo}','${sem}')" /></td>`;
       }).join('');
 
+      let toggleBtn = '';
+      if (!isOkr && palHasRefs.has(p.codigo)) {
+        const isExp = expandedPals.has(p.codigo);
+        toggleBtn = `<span onclick="event.stopPropagation();togglePal('${p.codigo}')" title="${isExp ? 'Colapsar' : 'Expandir'}" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:3px;background:${isExp?'#DCFCE7':'#F1F5F9'};color:${isExp?'#16A34A':'#94A3B8'};font-size:9px;cursor:pointer;margin-right:6px;flex-shrink:0;transition:all .15s;">${isExp ? '▼' : '▶'}</span>`;
+      }
+
       rows += `<tr id="row-${p.codigo}" style="background:${rowBg};">
-        <td style="${nameIndent}padding-top:10px;padding-bottom:10px;padding-right:10px;border-bottom:1px solid #F1F5F9;cursor:pointer;color:#0F172A;line-height:1.35;" onclick="filterRoadmap('${p.codigo}')">${p.texto} <span style="font-size:10px;color:#CBD5E1;">↗</span></td>
+        <td style="${nameIndent}padding-top:10px;padding-bottom:10px;padding-right:10px;border-bottom:1px solid #F1F5F9;cursor:pointer;color:#0F172A;line-height:1.35;display:flex;align-items:center;" onclick="filterRoadmap('${p.codigo}')">${toggleBtn}<span>${p.texto}</span> <span style="font-size:10px;color:#CBD5E1;margin-left:4px;">↗</span></td>
         <td style="text-align:center;padding:10px 6px;border-bottom:1px solid #F1F5F9;font-weight:600;color:#374151;white-space:nowrap;">${p.meta}</td>
         <td id="last-${p.codigo}" style="text-align:center;padding:8px;border-bottom:1px solid #F1F5F9;">${ultimoCell(v,si,p)}</td>
         ${cells}
