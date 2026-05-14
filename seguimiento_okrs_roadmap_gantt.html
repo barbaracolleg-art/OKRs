@@ -80,6 +80,11 @@ body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;backgroun
     Publicaciones
     <span style="font-size:10px;opacity:.6;">▾</span>
   </div>
+  <div class="squad-tab" data-squad="cap" onclick="showSquad('cap')">
+    <span class="squad-dot" style="background:#8B5CF6;box-shadow:0 0 0 2px #EDE9FE;"></span>
+    Captación Digital
+    <span style="font-size:10px;opacity:.6;">▾</span>
+  </div>
 </div>
 
 <div class="hdr">
@@ -289,21 +294,106 @@ const ganttLabelsPub = {
   'OKR-P1':'Publicaciones','OKR-P2':'Foto Impel','OKR-P3':'Backlog fotos',
 };
 
+// ── DATA: CAPTACIÓN DIGITAL ──
+const palancasCap = [
+  {tipo:'area_sep', texto:'EJE COMPRA', color:'#1E3A5F'},
+  {tipo:'okr_titulo', texto:'OKR3: Eje Compra'},
+  {tipo:'okr', codigo:'OKR-CD1', texto:'OKR 1 – Aumentar generación de prospectos de 9.718 leads verificados a 13.500 (38%) al 30 jun', meta:'70%', metaNum:70, direccion:'subir', unidad:'%'},
+  {tipo:'sub', texto:'Palancas OKR 2'},
+  {tipo:'pal', codigo:'CD1.1', texto:'Pasar de 32% a 45% usuarios que avanzan en el proceso de tasación (datos personales)', meta:'45%', metaNum:45, direccion:'subir', unidad:'%'},
+  {tipo:'pal', codigo:'CD1.2', texto:'Pasar del 31% que completa el formulario de tasación al 40%', meta:'40%', metaNum:40, direccion:'subir', unidad:'%'},
+  {tipo:'ref', codigo:'CD1.ref1', texto:'(Preguntar en medios qué palanca pude movilizar la generación de leads)', meta:'—'},
+  {tipo:'okr', codigo:'OKR-CD2', texto:'OKR 2 – Aumentar en un 7.5 a 17 / 27 la nota de evaluación respecto a competidores al 30 jun', meta:'60%', metaNum:60, direccion:'subir', unidad:'%'},
+  {tipo:'sub', texto:'Palancas OKR 1'},
+  {tipo:'pal', codigo:'CD2.1', texto:'Pasar de una tasa de interacción del 69.02% sobre el 85% en compra', meta:'85%', metaNum:85, direccion:'subir', unidad:'%'},
+  {tipo:'pal', codigo:'CD2.2', texto:'Disminuir los dead click de 8.6% a <3% en compra', meta:'<3%', metaNum:3, direccion:'bajar', unidad:'%'},
+  {tipo:'area_sep', texto:'EJE VENTA', color:'#7B1E1E'},
+  {tipo:'okr_titulo', texto:'OKR4: Eje Venta'},
+  {tipo:'okr', codigo:'OKR-CD3', texto:'OKR 3 – Aumentar generación de prospectos de 9.690 promedio a 12.500 promedio (30%) al 30 jun', meta:'95%', metaNum:95, direccion:'subir', unidad:'%'},
+  {tipo:'ref', codigo:'CD3.proy', texto:'Proyección esperada del OKR', meta:'—'},
+  {tipo:'sub', texto:'Palancas OKR 3'},
+  {tipo:'pal', codigo:'CD3.1', texto:'Pasar de 3.9% a 5.3% tasa de inicio del buy process', meta:'5.3%', metaNum:5.3, direccion:'subir', unidad:'%'},
+  {tipo:'pal', codigo:'CD3.2', texto:'Mantener catálogo de usados en meta al 100% de vehículos con foto', meta:'100%', metaNum:100, direccion:'subir', unidad:'%'},
+  {tipo:'okr', codigo:'OKR-CD4', texto:'OKR 4 – Aumentar en un 15 a 20 / 24 la nota de evaluación respecto a competidores al 30 jun', meta:'Por definir', metaNum:null, direccion:'subir', unidad:'%'},
+  {tipo:'sub', texto:'Palancas OKR 1'},
+  {tipo:'pal', codigo:'CD4.1', texto:'Disminuir los dead click de xx% a xx% en venta', meta:'Por definir', metaNum:null, direccion:'bajar', unidad:'%'},
+  {tipo:'pal', codigo:'CD4.2', texto:'Aumentar la tasa de interacción de las páginas de catálogo 50.29% a 80%', meta:'80%', metaNum:80, direccion:'subir', unidad:'%'},
+  {tipo:'pal', codigo:'CD4.3', texto:'Aumentar la tasa de interacción de las páginas de cotización 50.29% a 80%', meta:'80%', metaNum:80, direccion:'subir', unidad:'%'},
+];
+
+const semanasCap    = ['S3','S4','S5','S6','S7','S8','S9','S10','S11','S12'];
+const fechasSemCap  = ['04/05','11/05','18/05','25/05','01/06','08/06','15/06','22/06','29/06','06/07'];
+
+const mesesCap = [
+  {label:'Todos', semanas:null},
+  {label:'Mayo',  semanas:['S3','S4','S5','S6']},
+  {label:'Junio', semanas:['S7','S8','S9','S10','S11']},
+  {label:'Julio', semanas:['S12']},
+];
+const mesesGanttCap = [
+  {label:'Todos', ini:null,              fin:null},
+  {label:'Mayo',  ini:new Date(2026,4,1), fin:new Date(2026,4,31)},
+  {label:'Junio', ini:new Date(2026,5,1), fin:new Date(2026,5,30)},
+  {label:'Julio', ini:new Date(2026,6,1), fin:new Date(2026,6,31)},
+];
+
+const iniciativasCap = [
+  {codigo:'CD1.1', iniciativa:'Optimización proceso de tasación – datos personales', prio:'Alta', estado:'En Proceso', responsable:'C. Araya', ini:new Date(2026,4,4), fin:new Date(2026,5,30)},
+  {codigo:'CD1.2', iniciativa:'Mejora del formulario de tasación 31% → 40%', prio:'Alta', estado:'En Proceso', responsable:'C. Araya', ini:new Date(2026,4,4), fin:new Date(2026,5,30)},
+  {codigo:'CD2.1', iniciativa:'Mejora tasa de interacción en compra 69.02% → 85%', prio:'Media', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,11), fin:new Date(2026,6,30)},
+  {codigo:'CD2.2', iniciativa:'Reducción dead clicks en compra 8.6% → <3%', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,11), fin:new Date(2026,5,30)},
+  {codigo:'CD3.1', iniciativa:'Optimización tasa de inicio del buy process 3.9% → 5.3%', prio:'Alta', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,11), fin:new Date(2026,5,30)},
+  {codigo:'CD3.2', iniciativa:'Catálogo de usados con foto al 100%', prio:'Media', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,11), fin:new Date(2026,6,30)},
+  {codigo:'CD4.2', iniciativa:'Mejora tasa interacción páginas catálogo 50.29% → 80%', prio:'Media', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,18), fin:new Date(2026,6,30)},
+  {codigo:'CD4.3', iniciativa:'Mejora tasa interacción páginas cotización 50.29% → 80%', prio:'Media', estado:'No Iniciado', responsable:'—', ini:new Date(2026,4,18), fin:new Date(2026,6,30)},
+];
+
+const colorPalancaCap = {
+  'CD1.1':{fill:'#BAE6FD',text:'#0C4A6E'},'CD1.2':{fill:'#7DD3FC',text:'#0369A1'},
+  'CD2.1':{fill:'#C4B5FD',text:'#3B0764'},'CD2.2':{fill:'#A78BFA',text:'#2E1065'},
+  'CD3.1':{fill:'#FCA5A5',text:'#7F1D1D'},'CD3.2':{fill:'#FDBA74',text:'#7C2D12'},
+  'CD4.1':{fill:'#FCD34D',text:'#78350F'},'CD4.2':{fill:'#86EFAC',text:'#14532D'},
+  'CD4.3':{fill:'#6EE7B7',text:'#065F46'},
+  'OKR-CD1':{fill:'#BAE6FD',text:'#0C4A6E'},'OKR-CD2':{fill:'#DDD6FE',text:'#3B0764'},
+  'OKR-CD3':{fill:'#FECACA',text:'#7F1D1D'},'OKR-CD4':{fill:'#FEF08A',text:'#713F12'},
+};
+const ganttLabelsCap = {
+  'CD1.1':'Tasación datos','CD1.2':'Formulario tasación',
+  'CD2.1':'Interacción compra','CD2.2':'Dead clicks compra',
+  'CD3.1':'Buy process','CD3.2':'Catálogo foto',
+  'CD4.1':'Dead clicks venta','CD4.2':'Catálogo interact.','CD4.3':'Cotización interact.',
+  'OKR-CD1':'Leads verificados','OKR-CD2':'NPS Compra',
+  'OKR-CD3':'Leads Venta','OKR-CD4':'NPS Venta',
+};
+
 // ── STATE ──
 let currentSquad = 'leads';
 let datosLeads = {};
 let datosPub = {};
+let datosCap = {};
 let currentFilter = null;
 let currentMesIdx = 0;
 let currentGanttMes = 0;
 
 // ── HELPERS ──
+function getMesActualIdx(meses) {
+  const label = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][new Date().getMonth()];
+  const idx = meses.findIndex(m => m.label === label);
+  return idx > 0 ? idx : 0;
+}
+
 function sq() {
   if (currentSquad === 'pub') return {
     palancas:palancasPub, iniciativas:iniciativasPub,
     semanas:semanasPub, fechasSemana:fechasSemPub,
     meses:mesesPub, mesesGantt:mesesGanttPub,
     colorPalanca:colorPalancaPub, ganttLabels:ganttLabelsPub,
+  };
+  if (currentSquad === 'cap') return {
+    palancas:palancasCap, iniciativas:iniciativasCap,
+    semanas:semanasCap, fechasSemana:fechasSemCap,
+    meses:mesesCap, mesesGantt:mesesGanttCap,
+    colorPalanca:colorPalancaCap, ganttLabels:ganttLabelsCap,
   };
   return {
     palancas:palancasLeads, iniciativas:iniciativasLeads,
@@ -312,7 +402,11 @@ function sq() {
     colorPalanca:colorPalancaLeads, ganttLabels:ganttLabelsLeads,
   };
 }
-function getDatos() { return currentSquad === 'pub' ? datosPub : datosLeads; }
+function getDatos() {
+  if (currentSquad === 'pub') return datosPub;
+  if (currentSquad === 'cap') return datosCap;
+  return datosLeads;
+}
 
 function getSemanaActual(sems, dates) {
   const hoy = new Date();
@@ -326,7 +420,12 @@ function getSemanaActual(sems, dates) {
 }
 const semActualLeads = getSemanaActual(semanasLeads, fechasSemLeads);
 const semActualPub   = getSemanaActual(semanasPub,   fechasSemPub);
-function getSemActual() { return currentSquad === 'pub' ? semActualPub : semActualLeads; }
+const semActualCap   = getSemanaActual(semanasCap,   fechasSemCap);
+function getSemActual() {
+  if (currentSquad === 'pub') return semActualPub;
+  if (currentSquad === 'cap') return semActualCap;
+  return semActualLeads;
+}
 
 function semanasActivas() {
   const {meses, semanas} = sq();
@@ -380,9 +479,10 @@ function ultimoCell(v, si, p) {
 function loadData() {
   try { const r = localStorage.getItem('okrs_leads_v1'); if (r) datosLeads = JSON.parse(r); } catch(e) {}
   try { const r = localStorage.getItem('okrs_pub_v1');   if (r) datosPub   = JSON.parse(r); } catch(e) {}
+  try { const r = localStorage.getItem('okrs_cap_v1');   if (r) datosCap   = JSON.parse(r); } catch(e) {}
 }
 function saveData() {
-  const key = currentSquad === 'pub' ? 'okrs_pub_v1' : 'okrs_leads_v1';
+  const key = currentSquad === 'pub' ? 'okrs_pub_v1' : currentSquad === 'cap' ? 'okrs_cap_v1' : 'okrs_leads_v1';
   try {
     localStorage.setItem(key, JSON.stringify(getDatos()));
     const el = document.getElementById('save-status');
@@ -416,14 +516,17 @@ function onCellChange(input, codigo, sem) {
 
 function showSquad(squad) {
   currentSquad = squad;
-  currentMesIdx = 0;
-  currentGanttMes = 0;
+  currentMesIdx  = getMesActualIdx(sq().meses);
+  currentGanttMes = getMesActualIdx(sq().mesesGantt);
   currentFilter = null;
   document.querySelectorAll('.squad-tab').forEach(t => t.classList.toggle('squad-active', t.dataset.squad === squad));
   document.getElementById('filter-banner').style.display = 'none';
-  const info = squad === 'pub'
-    ? {name:'Publicaciones Web', lider:'Javiera Jerez'}
-    : {name:'Gestión de Leads',  lider:'Mayorin Vivas'};
+  const squadInfo = {
+    leads: {name:'Gestión de Leads',  lider:'Mayorin Vivas'},
+    pub:   {name:'Publicaciones Web', lider:'Javiera Jerez'},
+    cap:   {name:'Captación Digital', lider:'Trinidad Madrigal'},
+  };
+  const info = squadInfo[squad] || squadInfo.leads;
   document.getElementById('hdr-eye').textContent   = 'Americar · ' + info.name + ' · Q2 2026';
   document.getElementById('hdr-lider').textContent = info.lider;
   renderMonthButtons();
@@ -486,7 +589,7 @@ function exportData() {
     const f = d[p.codigo] || {};
     csv += `"${p.texto}",${p.codigo},${p.meta},${semanas.map(s => f[s]||'').join(',')}\n`;
   }
-  const name = currentSquad === 'pub' ? 'publicaciones' : 'leads';
+  const name = currentSquad === 'pub' ? 'publicaciones' : currentSquad === 'cap' ? 'captacion' : 'leads';
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'}));
   a.download = 'seguimiento_okrs_' + name + '.csv';
@@ -496,6 +599,7 @@ function exportData() {
 function resetData() {
   if (!confirm('¿Borrar todos los valores ingresados para este squad?')) return;
   if (currentSquad === 'pub') { datosPub = {}; try { localStorage.removeItem('okrs_pub_v1'); } catch(e) {} }
+  else if (currentSquad === 'cap') { datosCap = {}; try { localStorage.removeItem('okrs_cap_v1'); } catch(e) {} }
   else { datosLeads = {}; try { localStorage.removeItem('okrs_leads_v1'); } catch(e) {} }
   renderSeguimiento();
   renderKPIs();
@@ -733,6 +837,8 @@ function initHeader() {
 // ── INIT ──
 loadData();
 initHeader();
+currentMesIdx   = getMesActualIdx(sq().meses);
+currentGanttMes = getMesActualIdx(sq().mesesGantt);
 renderMonthButtons();
 renderKPIs();
 renderSeguimiento();
