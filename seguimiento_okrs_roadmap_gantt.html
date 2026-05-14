@@ -475,20 +475,61 @@ function ultimoCell(v, si, p) {
   return `<div><span style="font-weight:700;font-size:13px;color:#0F172A;">${v}</span>${bar}</div>`;
 }
 
-// ── STORAGE ──
-function loadData() {
-  try { const r = localStorage.getItem('okrs_leads_v1'); if (r) datosLeads = JSON.parse(r); } catch(e) {}
-  try { const r = localStorage.getItem('okrs_pub_v1');   if (r) datosPub   = JSON.parse(r); } catch(e) {}
-  try { const r = localStorage.getItem('okrs_cap_v1');   if (r) datosCap   = JSON.parse(r); } catch(e) {}
+// ── GITHUB STORAGE ──
+const GH_REPO = 'barbaracolleg-art/OKRs';
+const GH_FILE = 'datos_okr.json';
+let ghToken = null;
+let datosJsonSha = null;
+let saveTimer = null;
+
+function initStorage() {
+  const p = new URLSearchParams(window.location.search);
+  const t = p.get('setup');
+  if (t) { localStorage.setItem('gh_token', t); history.replaceState({}, '', window.location.pathname); }
+  ghToken = localStorage.getItem('gh_token');
 }
-function saveData() {
-  const key = currentSquad === 'pub' ? 'okrs_pub_v1' : currentSquad === 'cap' ? 'okrs_cap_v1' : 'okrs_leads_v1';
+
+async function loadData() {
   try {
-    localStorage.setItem(key, JSON.stringify(getDatos()));
-    const el = document.getElementById('save-status');
-    el.textContent = '✓ Guardado';
-    setTimeout(() => { el.textContent = ''; }, 1500);
+    const res = await fetch('https://raw.githubusercontent.com/' + GH_REPO + '/main/' + GH_FILE + '?t=' + Date.now());
+    if (res.ok) {
+      const d = await res.json();
+      datosLeads = d.leads || {};
+      datosPub   = d.pub   || {};
+      datosCap   = d.cap   || {};
+    }
   } catch(e) {}
+}
+
+async function saveData() {
+  const el = document.getElementById('save-status');
+  if (!ghToken) { el.textContent = '🔒 Solo lectura'; setTimeout(() => { el.textContent=''; }, 2000); return; }
+  el.textContent = '↑ Guardando…';
+  try {
+    if (!datosJsonSha) {
+      const r = await fetch('https://api.github.com/repos/' + GH_REPO + '/contents/' + GH_FILE, {
+        headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json' }
+      });
+      datosJsonSha = (await r.json()).sha;
+    }
+    const json = JSON.stringify({ leads: datosLeads, pub: datosPub, cap: datosCap });
+    const content = btoa(unescape(encodeURIComponent(json)));
+    const res = await fetch('https://api.github.com/repos/' + GH_REPO + '/contents/' + GH_FILE, {
+      method: 'PUT',
+      headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Update OKR data', content, sha: datosJsonSha })
+    });
+    const d = await res.json();
+    if (d.content) { datosJsonSha = d.content.sha; el.textContent = '✓ Guardado'; }
+    else { el.textContent = '⚠ Error al guardar'; datosJsonSha = null; }
+  } catch(e) { el.textContent = '⚠ Sin conexión'; }
+  setTimeout(() => { el.textContent = ''; }, 2500);
+}
+
+function scheduleSave() {
+  document.getElementById('save-status').textContent = '…';
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveData, 1500);
 }
 
 // ── INTERACTIONS ──
@@ -510,7 +551,7 @@ function onCellChange(input, codigo, sem) {
       uel.innerHTML = ultimoCell(v, getStatusInfo(v, p), p);
     }
   }
-  saveData();
+  scheduleSave();
   renderKPIs();
 }
 
@@ -598,9 +639,11 @@ function exportData() {
 
 function resetData() {
   if (!confirm('¿Borrar todos los valores ingresados para este squad?')) return;
-  if (currentSquad === 'pub') { datosPub = {}; try { localStorage.removeItem('okrs_pub_v1'); } catch(e) {} }
-  else if (currentSquad === 'cap') { datosCap = {}; try { localStorage.removeItem('okrs_cap_v1'); } catch(e) {} }
-  else { datosLeads = {}; try { localStorage.removeItem('okrs_leads_v1'); } catch(e) {} }
+  if (currentSquad === 'pub') datosPub = {};
+  else if (currentSquad === 'cap') datosCap = {};
+  else datosLeads = {};
+  datosJsonSha = null;
+  saveData();
   renderSeguimiento();
   renderKPIs();
 }
@@ -835,14 +878,17 @@ function initHeader() {
 }
 
 // ── INIT ──
-loadData();
-initHeader();
-currentMesIdx   = getMesActualIdx(sq().meses);
-currentGanttMes = getMesActualIdx(sq().mesesGantt);
-renderMonthButtons();
-renderKPIs();
-renderSeguimiento();
-renderGantt();
+initStorage();
+(async () => {
+  await loadData();
+  initHeader();
+  currentMesIdx   = getMesActualIdx(sq().meses);
+  currentGanttMes = getMesActualIdx(sq().mesesGantt);
+  renderMonthButtons();
+  renderKPIs();
+  renderSeguimiento();
+  renderGantt();
+})();
 </script>
 </body>
 </html>
